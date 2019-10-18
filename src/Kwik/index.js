@@ -4,22 +4,40 @@ const got = require('got')
 const querystring = require('querystring')
 const _ = require('lodash')
 
-/* PAYMENT_METHODS: (32=paystack|8=cash|2=stripe|131072=paga_wallet) */
-const apiEndpoints = {
-  getEstimatedTaskFare: {
-    path: '/get_bill_breakdown',
-    method: 'POST',
-    params: {},
-    route_params: null
-  },
-  cancelDeliveryTask: {
-    path: '/cancel_vendor_task',
-    method: 'POST',
-    params: { access_token$: String, vendor_id: Number, job_id: String, job_status: Number, domain_name: String },
-    route_params: null,
-    param_defaults: { job_status: 9 }
-  },
-  /*
+/* PARAMS: total_service_charge -> is fetched from '/send_payment_for_task' API endpoint from key name {total_service_charge} */
+
+/*  TASK STATUSES:
+
+    UPCOMING	0	The task has been assigned to a agent.
+    STARTED	1	The task has been started and the agent is on the way.
+    ENDED	2	The task has been completed successfully
+    FAILED	3	The task has been completed unsuccessfully
+    ARRIVED	4	The task is being performed and the agent has reached the destination.
+    UNASSIGNED	6	The task has not been assigned to any agent.
+    ACCEPTED	7	The task has been accepted by the agent which is assigned to him.
+    DECLINE	8	The task has been declined by the agent which is assigned to him.
+    CANCEL	9	The task has been cancelled by the agent which is accepted by him.
+    DELETED	10 The task is deleted by the agent
+
+*/
+
+/* PAYMENT METHODS: 
+  
+    PAYSTACK 32 The task will be paid for using paystck card option
+    CASH 8 The task will be paid for using cash in currency of local
+    STRIPE 2 The task will be paid for using stripe card option
+    PAGA 131072 The task will be paid for using a paga wallet
+*/
+
+/* TIMEZONES:
+
+   INDIAN STANDARD TIME (IST) -330 offset from UTC in minutes
+   CENTRAL AFRICAN TIME (CAT) +180 offset from UTC in minutes
+   WEST AFRICAN TIME (WAT) +60 offset from UTC in minutes
+
+*/
+
+/* DELIVERY ARRAY SETUP; PICKUP ARRAY SETUP
       {
   
           "deliveries": [
@@ -49,17 +67,46 @@ const apiEndpoints = {
           
       }
   */
-  calculatePricing: {
-    path: '/send_payment_for_task',
+const apiEndpoints = {
+  getEstimatedTaskFare: {
+    path: '/get_bill_breakdown',
     method: 'POST',
-    params: { vendor_id$: Number, custom_field_template: String, pickup_custom_field_template: String, form_id: Number, access_token: String, is_multiple_tasks: Number, domain_name: String, timezone: String, has_pickup: Number, has_delivery: Number, auto_assignment: Number, user_id: Number, layout_type: Number, deliveries: Array, form_id:Number, payment_method: Number, pickups: Array,  },
-    param_defaults: { custom_field_template: "pricing-template", pickup_custom_field_template: "pricing-template", form_id: 2, payment_method: 131072 /* paga wallet payment */, is_multiple_tasks: 1, has_pickup: 1, has_delivery: 1, timezone: '+60' /* West African Time: +1:00hr from UTC */, auto_assignment: 0, layout_type: 0, user_id:  },
+    params: { access_token$: String, benefit_type: Number, amount: String, insurance_amount: Number, domain_name$: String, total_no_of_tasks: Number, form_id: Number, user_id: Number, promo_value: Number, credits: Number, total_service_charge: String },
+    param_defaults: { insurance_amount: 0, total_no_of_tasks: 1, form_id: 2, benefit_type: "" },
     route_params: null
   },
-  getAllDeliveryRequests: {
-    
+  cancelDeliveryTask: {
+    path: '/cancel_vendor_task',
+    method: 'POST',
+    params: { access_token$: String, vendor_id$: Number, job_id: String, job_status: Number, domain_name$: String },
+    route_params: null,
+    param_defaults: { job_status: 9 }
   },
-  scheduleDeliveryRequest: {
+  calculatePricingForDeliveryTask: {
+    path: '/send_payment_for_task',
+    method: 'POST',
+    send_json: true,
+    params: { vendor_id$: Number, custom_field_template: String, pickup_custom_field_template: String, form_id: Number, access_token: String, is_multiple_tasks: Number, domain_name: String, timezone: String, has_pickup: Number, has_delivery: Number, auto_assignment: Number, user_id: Number, layout_type: Number, deliveries: Array, form_id:Number, payment_method: Number, pickups: Array },
+    param_defaults: { custom_field_template: "pricing-template", pickup_custom_field_template: "pricing-template", form_id: 2, payment_method: 131072 /* paga wallet payment */, is_multiple_tasks: 1, has_pickup: 1, has_delivery: 1, timezone: '+60' /* West African Time: +1:00hr from UTC */, auto_assignment: 0, layout_type: 0 },
+    route_params: null
+  },
+  getAllDeliveryTaskDetails: {
+    path:'/get_order_history_with_pagination',
+    method: 'GET',
+    send_json: false,
+    params: { access_token$: String, limit: String, skip: String },
+    param_defaults: { limit: 10, skip: 0 },
+    route_params: null
+  },
+  getDeliveryTaskDetails: {
+    path:'/view_task_by_relationship_id',
+    method:'GET',
+    send_json: false,
+    params: { access_token$: String, unique_order_id: String },
+    param_defaults: null,
+    route_params: null
+  },
+  scheduleDeliveryTask: {
     path: '/create_task_via_vendor',
     method: 'POST',
     send_json: true,
