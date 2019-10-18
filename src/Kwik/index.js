@@ -4,7 +4,8 @@ const got = require('got')
 const querystring = require('querystring')
 const _ = require('lodash')
 
-/* PARAMS: total_service_charge -> is fetched from '/send_payment_for_task' API endpoint from key name {total_service_charge} */
+/* PARAM: total_service_charge -> is fetched from '/send_payment_for_task' API endpoint from key name {total_service_charge} */
+/* PARAM: */
 
 /*  TASK STATUSES:
 
@@ -17,23 +18,23 @@ const _ = require('lodash')
     ACCEPTED	7	The task has been accepted by the agent which is assigned to him.
     DECLINE	8	The task has been declined by the agent which is assigned to him.
     CANCEL	9	The task has been cancelled by the agent which is accepted by him.
-    DELETED	10 The task is deleted by the agent
+    DELETED	10  The task is deleted by the agent
 
 */
 
 /* PAYMENT METHODS: 
   
-    PAYSTACK 32 The task will be paid for using paystck card option
-    CASH 8 The task will be paid for using cash in currency of local
-    STRIPE 2 The task will be paid for using stripe card option
-    PAGA 131072 The task will be paid for using a paga wallet
+    PAYSTACK    32      The task will be paid for using paystck card option
+    CASH        8       The task will be paid for using cash in currency of local
+    STRIPE      2       The task will be paid for using stripe card option
+    PAGA        131072  The task will be paid for using a paga wallet
 */
 
 /* TIMEZONES:
 
-   INDIAN STANDARD TIME (IST) -330 offset from UTC in minutes
-   CENTRAL AFRICAN TIME (CAT) +180 offset from UTC in minutes
-   WEST AFRICAN TIME (WAT) +60 offset from UTC in minutes
+   INDIAN STANDARD TIME (IST)   -330    offset from UTC in minutes
+   CENTRAL AFRICAN TIME (CAT)   +180    offset from UTC in minutes
+   WEST AFRICAN TIME (WAT)      +60     offset from UTC in minutes
 
 */
 
@@ -250,28 +251,25 @@ const makeMethod = function (config) {
     let pathname = false
     let payload = false
 
-    if (config.params !== null &&
-             config.params.service_id$ === String) {
-      requestParams.service_id = this.api_service_id
-    }
-
     if (!_.isEmpty(requestParams, true)) {
       if (config.params !== null) {
-        pathname = config.path
         payload = setInputValues(config, requestParams)
       }
 
       if (config.route_params !== null) {
         pathname = setPathName(config, requestParams)
-        if (payload === false) {
-          payload = {}
-        }
+      } else{
+        pathname = config.path
       }
     } else {
       if (config.params !== null ||
-                 config.route_params !== null) {
-        throw new Error('requestParam(s) Are Not Meant To Be Empty!')
+             config.route_params !== null) {
+            throw new Error('requestParam(s) Are Not Meant To Be Empty!')
       }
+    }
+      
+    if (payload === false) {
+        payload = {}
     }
 
     for (let type in payload) {
@@ -291,17 +289,14 @@ class KwikAPI {
   constructor (apiKey, isProd) {
     /* eslint-disable camelcase */
     var api_base = {
-      sandbox: 'https://api.kwik.delivery/',
-      live: 'https://api.kwik.delivery/'
+      sandbox: 'https://api.kwik.delivery',
+      live: 'https://api.kwik.delivery'
     }
-
-
-    this.api_service_id = !isProd ? api_service_ids['sandbox'] : api_service_ids['live'];
 
     this.httpClientBaseOptions = {
       baseUrl: (!isProd ? api_base.sandbox : api_base.live),
       headers: {
-        'Authorization': apiKey
+        'X-Merchant-Locale': 'en-NG'
       }
     }
     /* eslint-enable camelcase */
