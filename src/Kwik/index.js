@@ -18,7 +18,7 @@ const _ = require('lodash')
     ACCEPTED	7	The task has been accepted by the agent which is assigned to him.
     DECLINE	8	The task has been declined by the agent which is assigned to him.
     CANCEL	9	The task has been cancelled by the agent which is accepted by him.
-    DELETED	10  The task is deleted by the agent
+    DELETED	10      The task is deleted by the agent
 
 */
 
