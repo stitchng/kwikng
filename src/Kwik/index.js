@@ -4,6 +4,7 @@ const got = require('got')
 const querystring = require('querystring')
 const _ = require('lodash')
 
+/* PAYMENT_METHODS: (32=paystack|8=cash|2=stripe|131072=paga_wallet) */
 const apiEndpoints = {
   getEstimatedTaskFare: {
     path: '/get_bill_breakdown',
@@ -18,43 +19,52 @@ const apiEndpoints = {
     route_params: null,
     param_defaults: { job_status: 9 }
   },
+  /*
+      {
+  
+          "deliveries": [
+            {
+              "address": "Sector 19, Chandigarh, India",
+              "name": "",
+              "latitude": 30.72936309999999,
+              "longitude": 76.79197279999994,
+              "time": "2019-09-03 12:48:24",
+              "phone": "+919646297487",
+              "has_return_task": false,
+              "is_package_insured": 0
+            }
+          ],
+
+          "pickups": [
+            {
+              "address": "CDCL, Madhya Marg, 28B, Sector 28B, Chandigarh, India",
+              "name": "Jovani Predovic",
+              "latitude": 30.7188978,
+              "longitude": 76.81029809999995,
+              "time": "2019-09-03 12:48:24",
+              "phone": "+917837905578",
+              "email": "lead@yopmail.com"
+            }
+          ]
+          
+      }
+  */
   calculatePricing: {
     path: '/send_payment_for_task',
     method: 'POST',
-    params: { },
-    route_params: { order_id: String }
-  },
-  getOrderPickupWindows: {
-    path: '/orders/windows',
-    method: 'POST',
-    params: { pickup_datetime$: Date },
-    route_params: null
-  },
-  getDeliveryRequest: {
-    path: '/{:order_id}',
-    method: 'GET',
-    params: null,
-    route_params: { order_id: String }
-  },
-  getPickUpWindow: {
-    path: '/pricings/estimate',
-    method: 'POST',
-    params: { origin$: Object, destination$: Object, service_id$: String },
+    params: { vendor_id$: Number, custom_field_template: String, pickup_custom_field_template: String, form_id: Number, access_token: String, is_multiple_tasks: Number, domain_name: String, timezone: String, has_pickup: Number, has_delivery: Number, auto_assignment: Number, user_id: Number, layout_type: Number, deliveries: Array, form_id:Number, payment_method: Number, pickups: Array,  },
+    param_defaults: { custom_field_template: "pricing-template", pickup_custom_field_template: "pricing-template", form_id: 2, payment_method: 131072 /* paga wallet payment */, is_multiple_tasks: 1, has_pickup: 1, has_delivery: 1, timezone: '+60' /* West African Time: +1:00hr from UTC */, auto_assignment: 0, layout_type: 0, user_id:  },
     route_params: null
   },
   getAllDeliveryRequests: {
-    path: '/{:app_id}/orders',
-    method: 'GET',
-    params: { limit: Number, offset: Number },
-    param_defaults: { limit: 0, offset: 0 },
-    route_params: { app_id: String }
+    
   },
   scheduleDeliveryRequest: {
-    path: '/order',
+    path: '/create_task_via_vendor',
     method: 'POST',
     send_json: true,
-    params: { origin$: Object, destination$: Object, sender_name$: String, sender_phone$: String, recipient_name$: String, payee: String, cod_amount: Number, is_card: Boolean, recipient_phone$: String, pickup_window$: Object, pickup_instruction: String, delivery_instruction: String, manifest: Array, is_cod: Boolean, is_wallet: Boolean, is_cash: Boolean, service_id$: String },
-    param_defaults: { is_card: false, is_cod: false, is_cash: false, is_wallet: true, pickup_instruction: 'Please deliver this as soon as you can!' },
+    params: { pickup_delivery_relationship: Number, total_no_of_tasks: Number, amount: String, insurance_amount: Number, vendor_id$: Number, access_token$: String, is_multiple_tasks: Number, domain_name: String, timezone: String, has_pickup: Number, has_delivery: Number, auto_assignment: Number, team_id: Number, layout_type: Number },
+    param_defaults: { insurance_amount: 0, total_no_of_tasks: 1, pickup_delivery_relationship: 0, payment_method: 131072 /* paga wallet payment */, is_multiple_tasks: 1, has_pickup: 1, has_delivery: 1, timezone: '+60' /* West African Time: +1:00hr from UTC */, auto_assignment: 0, layout_type: 0, team_id: "" },
     route_params: null
   }
 }
