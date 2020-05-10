@@ -69,9 +69,58 @@ const _ = require('lodash')
       }
   */
 const apiEndpoints = {
+  adminLogin: {
+    path: '/vendor_login',
+    method: 'POST',
+    send_json: true,
+    params: { domain_name: string, email: String, password: String, api_login: Number }
+  },
+  fetchAllMerchantCards: {
+    path: '/fetch_merchant_cards',
+    method: 'POST',
+    send_json: true,
+    params: { access_token$: String, domain_name: String,  payment_method: String, origin_booking: Number },
+    param_defaults: { payment_method: '32', origin_booking: 1 },
+    route_params: null
+  },
+  addMerchantCard: {
+    path: '/add_cards_view',
+    method: 'GET',
+    params: { access_token$: String, domain_name: String, client_email: String },
+    route_params: null
+  },
+  deleteMerchantCard: {
+    path: '/delet_merchant_card',
+    method: 'POST',
+    send_json: true,
+    params: { access_token$: String, card_id: String, payment_method: Number, domain_name: String },
+    route_params: null
+    
+  },
+  createCorporate: {
+    path: '/customer/add',
+    method: 'POST',
+    send_json: true,
+    params: { address: String, domain: String, email: String, first_name: String, last_name: String, name: String, latitude: String, longitude: String, password: String, user_type: Number, form_ids: Number, customer_type: Number, company_rc_number: String, phone: String, sla_id: Number },
+    param_defaults: { user_type: 1 },
+    route_params: null
+  },
+  listAllCorporates: {
+    path: '/list_all_corporates',
+    method: 'GET',
+    params: { access_token$: String },
+    route_params: null
+  },
+  listAllCorporatesPaymentInvoices: {
+    path: '/list-all_payment_invoice',
+    method: 'GET',
+    params: { access_token$: String, corporate_id$: Number },
+    route_params: null
+  },
   getEstimatedTaskFare: {
     path: '/get_bill_breakdown',
     method: 'POST',
+    send_json: true,
     params: { access_token$: String, benefit_type: Number, amount: String, insurance_amount: Number, domain_name$: String, total_no_of_tasks: Number, form_id: Number, user_id: Number, promo_value: Number, credits: Number, total_service_charge: String },
     param_defaults: { insurance_amount: 0, total_no_of_tasks: 1, form_id: 2, benefit_type: "" },
     route_params: null
@@ -79,6 +128,7 @@ const apiEndpoints = {
   cancelDeliveryTask: {
     path: '/cancel_vendor_task',
     method: 'POST',
+    send_json: true,
     params: { access_token$: String, vendor_id$: Number, job_id: String, job_status: Number, domain_name$: String },
     route_params: null,
     param_defaults: { job_status: 9 }
@@ -290,7 +340,7 @@ class KwikAPI {
     /* eslint-disable camelcase */
     var api_base = {
       sandbox: 'https://api.kwik.delivery',
-      live: 'https://api.kwik.delivery'
+      live: 'https://apicopy.kwik.delivery'
     }
 
     this.httpClientBaseOptions = {
