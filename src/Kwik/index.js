@@ -4,7 +4,7 @@ const got = require('got')
 const querystring = require('querystring')
 const _ = require('lodash')
 
-/* PARAM: total_service_charge -> is fetched from '/send_payment_for_task' API endpoint from key name {total_service_charge} */
+/* PARAM: total_no_of_tasks, total_service_charge -> is fetched from '/send_payment_for_task' API endpoint from key name {total_service_charge} */
 
 
 /***** PARAMS: ******/
@@ -35,7 +35,7 @@ const _ = require('lodash')
     PAYSTACK    32      The task will be paid for using paystck card option
     CASH        8       The task will be paid for using cash in currency of local
     STRIPE      2       The task will be paid for using stripe card option
-    PAGA        131072  The task will be paid for using a paga wallet
+    PAGA        131072  The task will be paid for using a paga wallet option
 */
 
 /* TIMEZONES:
@@ -63,7 +63,8 @@ const _ = require('lodash')
               "time": "2019-09-03 12:48:24",
               "phone": "+919646297487",
               "has_return_task": false,
-              "is_package_insured": 0
+              "is_package_insured": 0,
+              "template_data": [ ]
             }
           ],
 
@@ -75,7 +76,8 @@ const _ = require('lodash')
               "longitude": 76.81029809999995,
               "time": "2019-09-03 12:48:24",
               "phone": "+917837905578",
-              "email": "lead@yopmail.com"
+              "email": "lead@yopmail.com",
+              "template_data": [ ]
             }
           ]
           
@@ -94,8 +96,8 @@ const apiEndpoints = {
     path: '/fetch_merchant_cards',
     method: 'POST',
     send_json: true,
-    params: { access_token$: String, domain_name$: String,  payment_method: Number, origin_booking: Number },
-    param_defaults: { payment_method: 32, origin_booking: 1 },
+    params: { access_token$: String, domain_name$: String,  payment_method: String, origin_booking: Number },
+    param_defaults: { payment_method: '32' /* card payment */, origin_booking: 1 },
     route_params: null
   },
   addMerchantCard: {
@@ -108,8 +110,8 @@ const apiEndpoints = {
     path: '/delet_merchant_card',
     method: 'POST',
     send_json: true,
-    params: { access_token$: String, card_id: String, payment_method: Number, domain_name$: String },
-    param_defaults: { payment_method: 32 },
+    params: { access_token$: String, card_id: String, payment_method: String, domain_name$: String },
+    param_defaults: { payment_method: '32' },
     route_params: null
   },
   createCorporate: {
@@ -154,8 +156,8 @@ const apiEndpoints = {
     path: '/send_payment_for_task',
     method: 'POST',
     send_json: true,
-    params: { vendor_id$: Number, custom_field_template: String, pickup_custom_field_template: String, form_id: Number, access_token$: String, is_multiple_tasks: Number, domain_name$: String, timezone: String, has_pickup: Number, has_delivery: Number, auto_assignment: Number, user_id$: Number, layout_type: Number, deliveries: Array, payment_method: Number, pickups: Array },
-    param_defaults: { custom_field_template: "pricing-template", pickup_custom_field_template: "pricing-template", form_id: 2, payment_method: 131072 /* paga wallet payment */, is_multiple_tasks: 1, has_pickup: 1, has_delivery: 1, timezone: '+60' /* West African Time: +1:00hr from UTC */, auto_assignment: 0, layout_type: 0 },
+    params: { vendor_id$: Number, custom_field_template: String, pickup_custom_field_template: String, form_id: Number, access_token$: String, is_multiple_tasks: Number, domain_name$: String, timezone: String, has_pickup: Number, has_delivery: Number, auto_assignment: Number, user_id$: Number, layout_type: Number, deliveries: Array, payment_method: String, pickups: Array },
+    param_defaults: { custom_field_template: "pricing-template", pickup_custom_field_template: "pricing-template", form_id: 2, payment_method: '131072' /* paga wallet payment */, is_multiple_tasks: 1, has_pickup: 1, has_delivery: 1, timezone: '+60' /* West African Time: +1:00hr from UTC */, auto_assignment: 0, layout_type: 0 },
     route_params: null
   },
   getAllDeliveryTaskDetails: {
@@ -178,8 +180,8 @@ const apiEndpoints = {
     path: '/create_task_via_vendor',
     method: 'POST',
     send_json: true,
-    params: { pickup_delivery_relationship: Number, total_no_of_tasks: Number, fleet_id: String, amount: String, insurance_amount: Number, vendor_id$: Number, access_token$: String, is_multiple_tasks: Number, domain_name$: String, timezone: String, has_pickup: Number, has_delivery: Number, auto_assignment: Number, team_id: Number, layout_type: Number },
-    param_defaults: { insurance_amount: 0, total_no_of_tasks: 1, pickup_delivery_relationship: 0, fleet_id:"", payment_method: 131072 /* paga wallet payment */, is_multiple_tasks: 1, has_pickup: 1, has_delivery: 1, timezone: '+60' /* West African Time: +1:00hr from UTC */, auto_assignment: 0, layout_type: 0, team_id: "" },
+    params: { pickup_delivery_relationship: Number, pickups: Array, deliveries: Array, payment_method: String, total_service_charge: Number, total_no_of_tasks: Number, fleet_id: String, amount: String, insurance_amount: Number, vendor_id$: Number, access_token$: String, is_multiple_tasks: Number, domain_name$: String, timezone: String, has_pickup: Number, has_delivery: Number, auto_assignment: Number, team_id: Number, layout_type: Number },
+    param_defaults: { insurance_amount: 0, payment_method: '32' , pickup_delivery_relationship: 0, fleet_id:"", payment_method: '131072' /* paga wallet payment */, is_multiple_tasks: 1, has_pickup: 1, has_delivery: 1, timezone: '+60' /* West African Time: +1:00hr from UTC */, auto_assignment: 0, layout_type: 0, team_id: "" },
     route_params: null
   }
 }
