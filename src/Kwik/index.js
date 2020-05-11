@@ -5,7 +5,15 @@ const querystring = require('querystring')
 const _ = require('lodash')
 
 /* PARAM: total_service_charge -> is fetched from '/send_payment_for_task' API endpoint from key name {total_service_charge} */
-/* PARAM: */
+
+
+/***** PARAMS: ******/
+
+/* FORM IDs:
+
+   BASIC -1
+
+*/
 
 /*  TASK STATUSES:
 
@@ -37,6 +45,11 @@ const _ = require('lodash')
    WEST AFRICAN TIME (WAT)      +60     offset from UTC in minutes
 
 */
+
+
+
+
+/****** PAYLOADS ********/
 
 /* DELIVERY ARRAY SETUP; PICKUP ARRAY SETUP
       {
@@ -115,7 +128,7 @@ const apiEndpoints = {
     route_params: null
   },
   listAllCorporatesPaymentInvoices: {
-    path: '/list-all_payment_invoice',
+    path: '/list_all_payment_invoice',
     method: 'GET',
     send_json: false,
     params: { access_token$: String, corporate_id$: Number },
@@ -193,12 +206,55 @@ _.mixin(function () {
       return _isEmpty(value)
     }
   }
-}())
+}());
 
-const isTypeOf = (_value, type) => {
-  let value = Object(_value)
-  return (value instanceof type)
+const isLiteralFalsey = (variable) => {
+    return (variable === "" || variable === false || variable === 0)
 }
+
+const checkTypeName = (target, type) => {
+    let typeName = ""
+    if(isLiteralFalsey(target)){
+        typeName = (typeof target)
+    }else{
+        typeName = ("" + (target && target.constructor.name))
+    }
+    return !!(typeName.toLowerCase().indexOf(type) + 1)
+}
+
+const isTypeOf = (value, type) => {
+    let result = false
+
+    type = type || []
+
+    if(typeof type === 'object'){
+
+        if(typeof type.length !== 'number'){
+            return result
+        }
+
+        let bitPiece = 0
+        type = [].slice.call(type)
+
+        type.forEach( _type => {
+            if(typeof _type === 'function'){
+                _type = (_type.name || _type.displayName).toLowerCase()
+            }
+            bitPiece |= (1 * (checkTypeName(value, _type)))
+        })
+
+        result = !!(bitPiece)
+    }else{
+        if(typeof type === 'function'){
+            type = (type.name || type.displayName).toLowerCase()
+        }
+
+        result = checkTypeName(value, type)
+    }
+
+    return result
+};
+
 
 const setPathName = (config, values) => {
   return config.path.replace(/\{:([\w]+)\}/g, function (
@@ -305,9 +361,27 @@ const makeMethod = function (config) {
     let pathname = false
     let payload = false
     
-    if(('domain_name' in config.params)){
+    if(('domain_name$' in config.params)){
         if(!requestParams.domain_name){
             requestParams.domain_name = this.domainName;
+        }
+    }
+      
+    if(('access_token$' in config.params)){
+        if(!requestParams.access_token){
+            requestParams.access_token = this.accessToken;
+        }
+    }
+      
+    if(('vendor_id$' in config.params)){
+        if(!requestParams.vendor_id){
+            requestParams.vendor_id = this.vendorId;
+        }
+    }
+      
+    if(('user_id$' in config.params)){
+        if(!requestParams.user_id){
+            requestParams.user_id = this.userId;
         }
     }
 
