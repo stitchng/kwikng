@@ -73,29 +73,31 @@ const apiEndpoints = {
     path: '/vendor_login',
     method: 'POST',
     send_json: true,
-    params: { domain_name: string, email: String, password: String, api_login: Number }
+    params: { domain_name$: String, email: String, password: String, api_login: Number },
+    param_defaults: { api_login: 1 },
+    route_params: null
   },
   fetchAllMerchantCards: {
     path: '/fetch_merchant_cards',
     method: 'POST',
     send_json: true,
-    params: { access_token$: String, domain_name: String,  payment_method: String, origin_booking: Number },
-    param_defaults: { payment_method: '32', origin_booking: 1 },
+    params: { access_token$: String, domain_name$: String,  payment_method: Number, origin_booking: Number },
+    param_defaults: { payment_method: 32, origin_booking: 1 },
     route_params: null
   },
   addMerchantCard: {
     path: '/add_cards_view',
     method: 'GET',
-    params: { access_token$: String, domain_name: String, client_email: String },
+    params: { access_token$: String, domain_name$: String, client_email: String },
     route_params: null
   },
   deleteMerchantCard: {
     path: '/delet_merchant_card',
     method: 'POST',
     send_json: true,
-    params: { access_token$: String, card_id: String, payment_method: Number, domain_name: String },
+    params: { access_token$: String, card_id: String, payment_method: Number, domain_name$: String },
+    param_defaults: { payment_method: 32 },
     route_params: null
-    
   },
   createCorporate: {
     path: '/customer/add',
@@ -108,12 +110,14 @@ const apiEndpoints = {
   listAllCorporates: {
     path: '/list_all_corporates',
     method: 'GET',
+    send_json: false,
     params: { access_token$: String },
     route_params: null
   },
   listAllCorporatesPaymentInvoices: {
     path: '/list-all_payment_invoice',
     method: 'GET',
+    send_json: false,
     params: { access_token$: String, corporate_id$: Number },
     route_params: null
   },
@@ -121,7 +125,7 @@ const apiEndpoints = {
     path: '/get_bill_breakdown',
     method: 'POST',
     send_json: true,
-    params: { access_token$: String, benefit_type: Number, amount: String, insurance_amount: Number, domain_name$: String, total_no_of_tasks: Number, form_id: Number, user_id: Number, promo_value: Number, credits: Number, total_service_charge: String },
+    params: { access_token$: String, benefit_type: Number, amount: String, insurance_amount: Number, domain_name$: String, total_no_of_tasks: Number, form_id: Number, user_id$: Number, promo_value: Number, credits: Number, total_service_charge: String },
     param_defaults: { insurance_amount: 0, total_no_of_tasks: 1, form_id: 2, benefit_type: "" },
     route_params: null
   },
@@ -137,7 +141,7 @@ const apiEndpoints = {
     path: '/send_payment_for_task',
     method: 'POST',
     send_json: true,
-    params: { vendor_id$: Number, custom_field_template: String, pickup_custom_field_template: String, form_id: Number, access_token: String, is_multiple_tasks: Number, domain_name: String, timezone: String, has_pickup: Number, has_delivery: Number, auto_assignment: Number, user_id: Number, layout_type: Number, deliveries: Array, form_id:Number, payment_method: Number, pickups: Array },
+    params: { vendor_id$: Number, custom_field_template: String, pickup_custom_field_template: String, form_id: Number, access_token$: String, is_multiple_tasks: Number, domain_name$: String, timezone: String, has_pickup: Number, has_delivery: Number, auto_assignment: Number, user_id$: Number, layout_type: Number, deliveries: Array, payment_method: Number, pickups: Array },
     param_defaults: { custom_field_template: "pricing-template", pickup_custom_field_template: "pricing-template", form_id: 2, payment_method: 131072 /* paga wallet payment */, is_multiple_tasks: 1, has_pickup: 1, has_delivery: 1, timezone: '+60' /* West African Time: +1:00hr from UTC */, auto_assignment: 0, layout_type: 0 },
     route_params: null
   },
@@ -161,7 +165,7 @@ const apiEndpoints = {
     path: '/create_task_via_vendor',
     method: 'POST',
     send_json: true,
-    params: { pickup_delivery_relationship: Number, total_no_of_tasks: Number, fleet_id: String, amount: String, insurance_amount: Number, vendor_id$: Number, access_token$: String, is_multiple_tasks: Number, domain_name: String, timezone: String, has_pickup: Number, has_delivery: Number, auto_assignment: Number, team_id: Number, layout_type: Number },
+    params: { pickup_delivery_relationship: Number, total_no_of_tasks: Number, fleet_id: String, amount: String, insurance_amount: Number, vendor_id$: Number, access_token$: String, is_multiple_tasks: Number, domain_name$: String, timezone: String, has_pickup: Number, has_delivery: Number, auto_assignment: Number, team_id: Number, layout_type: Number },
     param_defaults: { insurance_amount: 0, total_no_of_tasks: 1, pickup_delivery_relationship: 0, fleet_id:"", payment_method: 131072 /* paga wallet payment */, is_multiple_tasks: 1, has_pickup: 1, has_delivery: 1, timezone: '+60' /* West African Time: +1:00hr from UTC */, auto_assignment: 0, layout_type: 0, team_id: "" },
     route_params: null
   }
@@ -300,6 +304,12 @@ const makeMethod = function (config) {
   return function (requestParams = {}) {
     let pathname = false
     let payload = false
+    
+    if(('domain_name' in config.params)){
+        if(!requestParams.domain_name){
+            requestParams.domain_name = this.domainName;
+        }
+    }
 
     if (!_.isEmpty(requestParams, true)) {
       if (config.params !== null) {
@@ -336,12 +346,18 @@ const makeMethod = function (config) {
 }
 
 class KwikAPI {
-  constructor (apiKey, isProd) {
+  constructor (domainName, isProd) {
     /* eslint-disable camelcase */
     var api_base = {
       sandbox: 'https://api.kwik.delivery',
       live: 'https://apicopy.kwik.delivery'
     }
+    
+    this.domainName = domainName;
+      
+    this.accessToken = '';
+    this.vendorId = '';
+    this.userId = '';
 
     this.httpClientBaseOptions = {
       baseUrl: (!isProd ? api_base.sandbox : api_base.live),
@@ -351,6 +367,18 @@ class KwikAPI {
     }
     /* eslint-enable camelcase */
     this.httpBaseClient = got
+  }
+    
+  setAccessToken (token){
+    this.accessToken = token;
+  }
+    
+  setVendorId (id){
+    this.vendorId = id;
+  }
+    
+  setUserId (id){
+    this.userId = id;
   }
 }
 
