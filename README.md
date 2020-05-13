@@ -3,7 +3,7 @@
 [![NPM Version][npm-image]][npm-url]
 [![Build Status][travis-image]][travis-url]
 
-A NodeJS Wrapper for [Kwik Delivery](https://www.kwik.delivery)
+A NodeJS Wrapper for [Kwik Delivery](https://kwik.delivery)
 
 ## Overview
 This project provides an easy-to-use object-oriented API to access endpoints delineated at https://liveapikwik.docs.apiary.io/#reference
