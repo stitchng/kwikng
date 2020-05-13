@@ -1,5 +1,5 @@
 {
-  "name": "kwik-nodejs",
+  "name": "kwik-node",
   "version": "0.0.2",
   "description": "A NodeJS wrapper for the KwikDelivery API(s)",
   "main": "index.js",

@@ -4,85 +4,6 @@ const got = require('got')
 const querystring = require('querystring')
 const _ = require('lodash')
 
-/* PARAM: total_no_of_tasks, total_service_charge -> is fetched from '/send_payment_for_task' API endpoint from key name {total_service_charge} */
-
-
-/***** PARAMS: ******/
-
-/* FORM IDs:
-
-   BASIC -1
-
-*/
-
-/*  TASK STATUSES:
-
-    UPCOMING	0	The task has been assigned to a agent.
-    STARTED	1	The task has been started and the agent is on the way.
-    ENDED	2	The task has been completed successfully
-    FAILED	3	The task has been completed unsuccessfully
-    ARRIVED	4	The task is being performed and the agent has reached the destination.
-    UNASSIGNED	6	The task has not been assigned to any agent.
-    ACCEPTED	7	The task has been accepted by the agent which is assigned to him.
-    DECLINE	8	The task has been declined by the agent which is assigned to him.
-    CANCEL	9	The task has been cancelled by the agent which is accepted by him.
-    DELETED	10      The task is deleted by the agent
-
-*/
-
-/* PAYMENT METHODS: 
-  
-    PAYSTACK    32      The task will be paid for using paystck card option
-    CASH        8       The task will be paid for using cash in currency of local
-    STRIPE      2       The task will be paid for using stripe card option
-    PAGA        131072  The task will be paid for using a paga wallet option
-*/
-
-/* TIMEZONES:
-
-   INDIAN STANDARD TIME (IST)   -330    offset from UTC in minutes
-   CENTRAL AFRICAN TIME (CAT)   +180    offset from UTC in minutes
-   WEST AFRICAN TIME (WAT)      +60     offset from UTC in minutes
-
-*/
-
-
-
-
-/****** PAYLOADS ********/
-
-/* DELIVERY ARRAY SETUP; PICKUP ARRAY SETUP
-      {
-  
-          "deliveries": [
-            {
-              "address": "Sector 19, Chandigarh, India",
-              "name": "",
-              "latitude": 30.72936309999999,
-              "longitude": 76.79197279999994,
-              "time": "2019-09-03 12:48:24",
-              "phone": "+919646297487",
-              "has_return_task": false,
-              "is_package_insured": 0,
-              "template_data": [ ]
-            }
-          ],
-
-          "pickups": [
-            {
-              "address": "CDCL, Madhya Marg, 28B, Sector 28B, Chandigarh, India",
-              "name": "Jovani Predovic",
-              "latitude": 30.7188978,
-              "longitude": 76.81029809999995,
-              "time": "2019-09-03 12:48:24",
-              "phone": "+917837905578",
-              "email": "lead@yopmail.com",
-              "template_data": [ ]
-            }
-          ]
-          
-      }
-  */
 const apiEndpoints = {
   adminLogin: {
     path: '/vendor_login',
@@ -96,13 +17,14 @@ const apiEndpoints = {
     path: '/fetch_merchant_cards',
     method: 'POST',
     send_json: true,
-    params: { access_token$: String, domain_name$: String,  payment_method: String, origin_booking: Number },
+    params: { access_token$: String, domain_name$: String, payment_method: String, origin_booking: Number },
     param_defaults: { payment_method: '32' /* card payment */, origin_booking: 1 },
     route_params: null
   },
   addMerchantCard: {
     path: '/add_cards_view',
     method: 'GET',
+    send_json: false,
     params: { access_token$: String, domain_name$: String, client_email: String },
     route_params: null
   },
@@ -110,7 +32,7 @@ const apiEndpoints = {
     path: '/delet_merchant_card',
     method: 'POST',
     send_json: true,
-    params: { access_token$: String, card_id: String, payment_method: String, domain_name$: String },
+    params: { access_token$: String, card_id$: String, payment_method: String, domain_name$: String },
     param_defaults: { payment_method: '32' },
     route_params: null
   },
@@ -129,19 +51,19 @@ const apiEndpoints = {
     params: { access_token$: String },
     route_params: null
   },
-  listAllCorporatesPaymentInvoices: {
+  listAllCorporatesInvoices: {
     path: '/list_all_payment_invoice',
     method: 'GET',
     send_json: false,
     params: { access_token$: String, corporate_id$: Number },
     route_params: null
   },
-  getEstimatedTaskFare: {
+  getEstimatedPriceForDeliveryTask: {
     path: '/get_bill_breakdown',
     method: 'POST',
     send_json: true,
     params: { access_token$: String, benefit_type: Number, amount: String, insurance_amount: Number, domain_name$: String, total_no_of_tasks: Number, form_id: Number, user_id$: Number, promo_value: Number, credits: Number, total_service_charge: String },
-    param_defaults: { insurance_amount: 0, total_no_of_tasks: 1, form_id: 2, benefit_type: "" },
+    param_defaults: { insurance_amount: 0, total_no_of_tasks: 1, form_id: 2, benefit_type: '' },
     route_params: null
   },
   cancelDeliveryTask: {
@@ -152,25 +74,25 @@ const apiEndpoints = {
     route_params: null,
     param_defaults: { job_status: 9 }
   },
-  calculatePricingForDeliveryTask: {
+  getExactPricingForDeliveryTask: {
     path: '/send_payment_for_task',
     method: 'POST',
     send_json: true,
     params: { vendor_id$: Number, custom_field_template: String, pickup_custom_field_template: String, form_id: Number, access_token$: String, is_multiple_tasks: Number, domain_name$: String, timezone: String, has_pickup: Number, has_delivery: Number, auto_assignment: Number, user_id$: Number, layout_type: Number, deliveries: Array, payment_method: String, pickups: Array },
-    param_defaults: { custom_field_template: "pricing-template", pickup_custom_field_template: "pricing-template", form_id: 2, payment_method: '131072' /* paga wallet payment */, is_multiple_tasks: 1, has_pickup: 1, has_delivery: 1, timezone: '+60' /* West African Time: +1:00hr from UTC */, auto_assignment: 0, layout_type: 0 },
+    param_defaults: { custom_field_template: 'pricing-template', pickup_custom_field_template: 'pricing-template', form_id: 2, payment_method: '131072' /* paga wallet payment */, is_multiple_tasks: 1, has_pickup: 1, has_delivery: 1, timezone: '+60' /* West African Time: +1:00hr from UTC */, auto_assignment: 0, layout_type: 0 },
     route_params: null
   },
   getAllDeliveryTaskDetails: {
-    path:'/get_order_history_with_pagination',
+    path: '/get_order_history_with_pagination',
     method: 'GET',
     send_json: false,
     params: { access_token$: String, limit: String, skip: String },
     param_defaults: { limit: 10, skip: 0 },
     route_params: null
   },
-  getDeliveryTaskDetails: {
-    path:'/view_task_by_relationship_id',
-    method:'GET',
+  getSingleDeliveryTaskDetails: {
+    path: '/view_task_by_relationship_id',
+    method: 'GET',
     send_json: false,
     params: { access_token$: String, unique_order_id: String },
     param_defaults: null,
@@ -181,7 +103,7 @@ const apiEndpoints = {
     method: 'POST',
     send_json: true,
     params: { pickup_delivery_relationship: Number, pickups: Array, deliveries: Array, payment_method: String, total_service_charge: Number, total_no_of_tasks: Number, fleet_id: String, amount: String, insurance_amount: Number, vendor_id$: Number, access_token$: String, is_multiple_tasks: Number, domain_name$: String, timezone: String, has_pickup: Number, has_delivery: Number, auto_assignment: Number, team_id: Number, layout_type: Number },
-    param_defaults: { insurance_amount: 0 , pickup_delivery_relationship: 0, fleet_id:"", payment_method: '131072' /* paga wallet payment */, is_multiple_tasks: 1, has_pickup: 1, has_delivery: 1, timezone: '+60' /* West African Time: +1:00hr from UTC */, auto_assignment: 0, layout_type: 0, team_id: "" },
+    param_defaults: { insurance_amount: 0, pickup_delivery_relationship: 0, fleet_id: '', payment_method: '131072' /* paga wallet payment */, is_multiple_tasks: 1, has_pickup: 1, has_delivery: 1, timezone: '+60' /* West African Time: +1:00hr from UTC */, auto_assignment: 0, layout_type: 0, team_id: '' },
     route_params: null
   }
 }
@@ -208,55 +130,53 @@ _.mixin(function () {
       return _isEmpty(value)
     }
   }
-}());
+}())
 
 const isLiteralFalsey = (variable) => {
-    return (variable === "" || variable === false || variable === 0)
+  return (variable === '' || variable === false || variable === 0)
 }
 
 const checkTypeName = (target, type) => {
-    let typeName = ""
-    if(isLiteralFalsey(target)){
-        typeName = (typeof target)
-    }else{
-        typeName = ("" + (target && target.constructor.name))
-    }
-    return !!(typeName.toLowerCase().indexOf(type) + 1)
+  let typeName = ''
+  if (isLiteralFalsey(target)) {
+    typeName = (typeof target)
+  } else {
+    typeName = ('' + (target && target.constructor.name))
+  }
+  return !!(typeName.toLowerCase().indexOf(type) + 1)
 }
 
 const isTypeOf = (value, type) => {
-    let result = false
+  let result = false
 
-    type = type || []
+  type = type || []
 
-    if(typeof type === 'object'){
-
-        if(typeof type.length !== 'number'){
-            return result
-        }
-
-        let bitPiece = 0
-        type = [].slice.call(type)
-
-        type.forEach( _type => {
-            if(typeof _type === 'function'){
-                _type = (_type.name || _type.displayName).toLowerCase()
-            }
-            bitPiece |= (1 * (checkTypeName(value, _type)))
-        })
-
-        result = !!(bitPiece)
-    }else{
-        if(typeof type === 'function'){
-            type = (type.name || type.displayName).toLowerCase()
-        }
-
-        result = checkTypeName(value, type)
+  if (typeof type === 'object') {
+    if (typeof type.length !== 'number') {
+      return result
     }
 
-    return result
-};
+    let bitPiece = 0
+    type = [].slice.call(type)
 
+    type.forEach(_type => {
+      if (typeof _type === 'function') {
+        _type = (_type.name || _type.displayName).toLowerCase()
+      }
+      bitPiece |= (1 * (checkTypeName(value, _type)))
+    })
+
+    result = !!(bitPiece)
+  } else {
+    if (typeof type === 'function') {
+      type = (type.name || type.displayName).toLowerCase()
+    }
+
+    result = checkTypeName(value, type)
+  }
+
+  return result
+}
 
 const setPathName = (config, values) => {
   return config.path.replace(/\{:([\w]+)\}/g, function (
@@ -362,29 +282,39 @@ const makeMethod = function (config) {
   return function (requestParams = {}) {
     let pathname = false
     let payload = false
-    
-    if(('domain_name$' in config.params)){
-        if(!requestParams.domain_name){
-            requestParams.domain_name = this.domainName;
-        }
+
+    if (!isTypeOf(requestParams, 'object')) {
+      throw new TypeError('invalid argument type')
     }
-      
-    if(('access_token$' in config.params)){
-        if(!requestParams.access_token){
-            requestParams.access_token = this.accessToken;
-        }
+
+    if (('domain_name$' in config.params)) {
+      if (!requestParams.domain_name) {
+        requestParams.domain_name = this.domainName
+      }
     }
-      
-    if(('vendor_id$' in config.params)){
-        if(!requestParams.vendor_id){
-            requestParams.vendor_id = this.vendorId;
-        }
+
+    if (('access_token$' in config.params)) {
+      if (!requestParams.access_token) {
+        requestParams.access_token = this.accessToken
+      }
     }
-      
-    if(('user_id$' in config.params)){
-        if(!requestParams.user_id){
-            requestParams.user_id = this.userId;
-        }
+
+    if (('vendor_id$' in config.params)) {
+      if (!requestParams.vendor_id) {
+        requestParams.vendor_id = this.vendorId
+      }
+    }
+
+    if (('user_id$' in config.params)) {
+      if (!requestParams.user_id) {
+        requestParams.user_id = this.userId
+      }
+    }
+
+    if (('card_id$' in config.params)) {
+      if (!requestParams.card_id) {
+        requestParams.card_id = this.cardId
+      }
     }
 
     if (!_.isEmpty(requestParams, true)) {
@@ -394,18 +324,18 @@ const makeMethod = function (config) {
 
       if (config.route_params !== null) {
         pathname = setPathName(config, requestParams)
-      } else{
+      } else {
         pathname = config.path
       }
     } else {
       if (config.params !== null ||
              config.route_params !== null) {
-            throw new Error('requestParam(s) Are Not Meant To Be Empty!')
+        throw new Error('requestParam(s) Are Not Meant To Be Empty!')
       }
     }
-      
+
     if (payload === false) {
-        payload = {}
+      payload = {}
     }
 
     for (let type in payload) {
@@ -422,39 +352,40 @@ const makeMethod = function (config) {
 }
 
 class KwikAPI {
-  constructor (domainName, isProd) {
+  constructor (domainName = 'app.kwik.delivery', isProd = true) {
     /* eslint-disable camelcase */
     var api_base = {
-      sandbox: 'https://api.kwik.delivery',
+      sandbox: (domainName || '').startsWith('staging-') ? 'https://staging-api-test.kwik.delivery' : 'https://api.kwik.delivery',
       live: 'https://apicopy.kwik.delivery'
     }
-    
-    this.domainName = domainName;
-      
-    this.accessToken = '';
-    this.vendorId = '';
-    this.userId = '';
+
+    this.domainName = domainName
+
+    this.accessToken = ''
+    this.vendorId = ''
+    this.userId = ''
 
     this.httpClientBaseOptions = {
-      baseUrl: (!isProd ? api_base.sandbox : api_base.live),
-      headers: {
-        'X-Merchant-Locale': 'en-NG'
-      }
+      baseUrl: (!isProd ? api_base.sandbox : api_base.live)
     }
     /* eslint-enable camelcase */
     this.httpBaseClient = got
   }
-    
-  setAccessToken (token){
-    this.accessToken = token;
+
+  setAccessToken (token) {
+    this.accessToken = token
   }
-    
-  setVendorId (id){
-    this.vendorId = id;
+
+  setVendorId (id) {
+    this.vendorId = id
   }
-    
-  setUserId (id){
-    this.userId = id;
+
+  setUserId (id) {
+    this.userId = id
+  }
+
+  setCardId (id) {
+    this.cardId = id
   }
 }
 
