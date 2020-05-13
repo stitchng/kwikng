@@ -18,6 +18,7 @@ describe('Kwik Instance Test(s)', function () {
     expect((typeof instance.getEstimatedPriceForDeliveryTask === 'function')).to.be.true
     expect((typeof instance.listAllCorporates === 'function')).to.be.true
     expect((typeof instance.createCorporate === 'function')).to.be.true
+    expect((typeof instance.listAllCorporatesInvoices === 'function')).to.be.true
     expect((typeof instance.scheduleDeliveryTask === 'function')).to.be.true
     expect((typeof instance.cancelDeliveryTask === 'function')).to.be.true
     expect((typeof instance.getExactPricingForDeliveryTask === 'function')).to.be.true
