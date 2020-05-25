@@ -197,7 +197,7 @@ const _jsonify = (data) => {
   return !data ? 'null'
     : (typeof data === 'object'
       ? (data instanceof Date ? data.toDateString() : (('toJSON' in data) ? data.toJSON().replace(/T|Z/g, ' ') : JSON.stringify(data)))
-      : String(data))
+      : data)
 }
 
 const setInputValues = (config, inputs) => {
@@ -273,10 +273,10 @@ const makeMethod = function (config) {
 
   if (config.send_json) {
     httpConfig.headers['Content-Type'] = httpConfig.headers['Accept']
-    httpConfig.form = true
+    httpConfig.form = false
   } else if (config.send_form) {
     httpConfig.headers['Content-Type'] = 'application/x-www-form-urlencoded'
-    httpConfig.form = false
+    httpConfig.form = true
   }
 
   return function (requestParams = {}) {
@@ -340,7 +340,7 @@ const makeMethod = function (config) {
 
     for (let type in payload) {
       if (payload.hasOwnProperty(type)) {
-        httpConfig[type] = payload[type]
+        httpConfig[type] = JSON.parse(payload[type])
       }
     }
 
