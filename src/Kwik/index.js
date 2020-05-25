@@ -102,7 +102,7 @@ const apiEndpoints = {
     path: '/create_task_via_vendor',
     method: 'POST',
     send_json: true,
-    params: { pickup_delivery_relationship: Number, pickups: Array, deliveries: Array, payment_method: String, total_service_charge: Number, total_no_of_tasks: Number, fleet_id: String, amount: String, insurance_amount: Number, vendor_id$: Number, access_token$: String, is_multiple_tasks: Number, domain_name$: String, timezone: String, has_pickup: Number, has_delivery: Number, auto_assignment: Number, team_id: Number, layout_type: Number },
+    params: { pickup_delivery_relationship: Number, pickups: Array, deliveries: Array, payment_method: String, total_service_charge: String, total_no_of_tasks: String, fleet_id: String, amount: String, insurance_amount: String, vendor_id$: Number, access_token$: String, is_multiple_tasks: Number, domain_name$: String, timezone: String, has_pickup: Number, has_delivery: Number, auto_assignment: Number, team_id: Number, layout_type: Number },
     param_defaults: { insurance_amount: 0, pickup_delivery_relationship: 0, fleet_id: '', payment_method: '131072' /* paga wallet payment */, is_multiple_tasks: 1, has_pickup: 1, has_delivery: 1, timezone: '+60' /* West African Time: +1:00hr from UTC */, auto_assignment: 0, layout_type: 0, team_id: '' },
     route_params: null
   }
