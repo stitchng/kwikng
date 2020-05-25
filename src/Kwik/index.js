@@ -340,7 +340,7 @@ const makeMethod = function (config) {
 
     for (let type in payload) {
       if (payload.hasOwnProperty(type)) {
-        httpConfig[type] = JSON.parse(payload[type])
+        httpConfig[type] = (type === 'query') ? payload[type] : JSON.parse(payload[type])
       }
     }
 
