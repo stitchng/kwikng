@@ -62,8 +62,8 @@ const apiEndpoints = {
     path: '/get_bill_breakdown',
     method: 'POST',
     send_json: true,
-    params: { access_token$: String, benefit_type: Number, amount: String, insurance_amount: Number, domain_name$: String, total_no_of_tasks: Number, form_id: Number, user_id$: Number, promo_value: Number, credits: Number, total_service_charge: String },
-    param_defaults: { insurance_amount: 0, total_no_of_tasks: 1, form_id: 2, benefit_type: '' },
+    params: { access_token$: String, benefit_type: Number, amount: String, insurance_amount: String, domain_name$: String, total_no_of_tasks: Number, form_id: Number, user_id$: Number, promo_value: Number, credits: Number, total_service_charge: String },
+    param_defaults: { insurance_amount: "0", total_no_of_tasks: 1, form_id: 2, benefit_type: '' },
     route_params: null
   },
   cancelDeliveryTask: {
@@ -103,7 +103,7 @@ const apiEndpoints = {
     method: 'POST',
     send_json: true,
     params: { pickup_delivery_relationship: Number, pickups: Array, deliveries: Array, payment_method: String, total_service_charge: String, total_no_of_tasks: String, fleet_id: String, amount: String, insurance_amount: String, vendor_id$: Number, access_token$: String, is_multiple_tasks: Number, domain_name$: String, timezone: String, has_pickup: Number, has_delivery: Number, auto_assignment: Number, team_id: Number, layout_type: Number },
-    param_defaults: { insurance_amount: 0, pickup_delivery_relationship: 0, fleet_id: '', payment_method: '131072' /* paga wallet payment */, is_multiple_tasks: 1, has_pickup: 1, has_delivery: 1, timezone: '+60' /* West African Time: +1:00hr from UTC */, auto_assignment: 0, layout_type: 0, team_id: '' },
+    param_defaults: { insurance_amount: "0", pickup_delivery_relationship: 0, fleet_id: '', payment_method: '131072' /* paga wallet payment */, is_multiple_tasks: 1, has_pickup: 1, has_delivery: 1, timezone: '+60' /* West African Time: +1:00hr from UTC */, auto_assignment: 0, layout_type: 0, team_id: '' },
     route_params: null
   }
 }
