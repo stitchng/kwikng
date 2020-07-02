@@ -10,3 +10,9 @@
 ### Bug Fixes
 - Fixed issue logged by [@olaoluwa-98](https://github.com/olaoluwa-98) on [Issue 3](https://github.com/stitchng/kwikng/issues/3) related to [this **got** issue](https://github.com/sindresorhus/got/issues/511)
 
+<a name="0.0.6"></a>
+# 0.0.6 (2020-07-02)
+
+### Bug Fixes
+- Fixed type error
+
