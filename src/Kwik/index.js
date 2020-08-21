@@ -194,10 +194,15 @@ const setPathName = (config, values) => {
 }
 
 const _jsonify = (data) => {
-  return !data ? 'null'
-    : (typeof data === 'object'
-      ? (data instanceof Date ? data.toDateString() : (('toJSON' in data) ? data.toJSON().replace(/T|Z/g, ' ') : JSON.stringify(data)))
-      : data)
+  return data === undefined || data === null || data === ""
+    ? "null"
+    : typeof data === "object"
+    ? data instanceof Date
+      ? data.toDateString()
+      : "toJSON" in data
+      ? data.toJSON().replace(/T|Z/g, " ")
+      : JSON.stringify(data)
+    : data;
 }
 
 const setInputValues = (config, inputs) => {
