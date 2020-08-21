@@ -80,7 +80,7 @@ const Kwik = require('kwik-node')
 const express = require('express')
 
 const domainName = process.env.KWIK_DOMAIN_NAME; // 'app.kwik.delivery'
-const environment = process.env.NODE_ENV
+const environment = process.env.NODE_ENV; // 'production'
 
 const kwikClient = new Kwik(
     domainName, 
@@ -134,13 +134,16 @@ app.use('/create/delivery', async (req, res, next) => {
     );
   }
 
-  next()
-})
+  next();
+});
+
+
 
 // error handler
 app.use(function (err, req, res, next) {
   res.status(500).send(err.message)
 });
+
 
 
 app.post('/create/delivery', async (req, res) => {
@@ -194,7 +197,7 @@ app.post('/create/delivery', async (req, res) => {
 
     console.log(
         'CURRENCY: ', 
-        JSON.stringify(payload.body.data.currency, '\t')
+        JSON.stringify(payload.body.data.currency, null, '\t')
     );
 
     console.log(
@@ -217,13 +220,12 @@ app.post('/create/delivery', async (req, res) => {
         amount: String(cost_per_task * deliveries.length),
         deliveries: payload.body.data.deliveries,
         pickups: payload.body.data.pickups
-
-      });
+    });
 
     res.status(response.body.status).send(response.body.message)
 })
 
-app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`))
+app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`));
 
 
 ```
@@ -232,21 +234,21 @@ app.listen(port, () => console.log(`Example app listening at http://localhost:${
 
 >Each method expects an object literal with both **route parameters** and **request parameters (query / body)**. Please, go through the _src/Kwik/index.js_ `apiEndpoints` object to see the specific items that should make up the object literal for each method and their types
 
-- Tasks
+- **Tasks**
   - kwikClient.cancelDeliveryTask()
   - kwikClient.scheduleDeliveryTask()
-- Pricing
+- **Pricing**
   - kwikClient.getExactPricingForDeliveryTask()
   - kwikClient.getEstimatedPriceForDeliveryTask()
-- Payments
+- **Payments**
   - kwikClient.fetchAllMerchantCards()
   - kwikClient.addMerchantCard()
   - kwikClient.deleteMerchantCard()
-- Corporates
+- **Corporates**
   - kwikClient.createCorporate()
   - kwikClient.listAllCorporates()
   - kwikClient.listAllCorporatesInvoices()
-- Task Details ( Jobs )
+- **Task Details ( Jobs )**
   - kwikClient.getSingleDeliveryTaskDetails()
   - kwikClient.getAllDeliveryTaskDetails()
 
