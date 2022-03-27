@@ -1,6 +1,6 @@
 {
   "name": "kwik-node",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "A NodeJS wrapper for the KwikDelivery API(s)",
   "main": "index.js",
   "files": [
