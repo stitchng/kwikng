@@ -13,12 +13,52 @@ const apiEndpoints = {
     param_defaults: { api_login: 1 },
     route_params: null
   },
+  listAllCustomersPerCorporates: {
+    path: '/get_all_customers_per_corporate',
+    method: 'GET',
+    send_json: false,
+    params: { access_token$: String, limit: Number, skip: Number },
+    param_defaults: { limit: 10, skip: 0 },
+    route_params: null
+  },
+  listAllCorporatesInvoicesSub: {
+    path: '/list_all_job_invoice_sub',
+    method: 'GET',
+    send_json: false,
+    params: { access_token$: String, corporate_id$: Number, vendor_id$: Number, start_date: String, end_date: String, limit: Number, skip: Number },
+    param_defaults: { limit: 10, skip: 0 },
+    route_params: null
+  },
+  getDeliveryTaskStatus: {
+    path: '/getJobStatus',
+    method: 'GET',
+    send_json: false,
+    params: { unique_order_id$: String, customer_id: Number },
+    param_defaults: null,
+    route_params: null
+  },
+  fetchAllAvailableDeliveryVehicles: {
+    path: '/getVehicle',
+    method: 'GET',
+    send_json: false,
+    params: { access_token$: String, is_vendor: Number, size: Number },
+    param_defaults: { is_vendor: 1, size: 0 /* motorcycle (bike) */ },
+    route_params: null
+  },
+  fetchAllLoadersOnAmount: {
+    path: '/getLoaderList',
+    method: 'GET',
+    send_json: false,
+    params: { access_token$: String, is_vendor: Number },
+    param_defaults: { is_vendor: 1 },
+    route_params: null
+  },
   fetchAllMerchantCards: {
     path: '/fetch_merchant_cards',
     method: 'POST',
     send_json: true,
-    params: { access_token$: String, domain_name$: String, payment_method: String, origin_booking: Number },
-    param_defaults: { payment_method: '32' /* card payment */, origin_booking: 1 },
+    params: { access_token$: String, domain_name$: String, payment_method: Number, origin_booking: Number },
+    param_defaults: { payment_method: 32 /* card payment */, origin_booking: 1 },
     route_params: null
   },
   addMerchantCard: {
@@ -32,8 +72,8 @@ const apiEndpoints = {
     path: '/delet_merchant_card',
     method: 'POST',
     send_json: true,
-    params: { access_token$: String, card_id$: String, payment_method: String, domain_name$: String },
-    param_defaults: { payment_method: '32' },
+    params: { access_token$: String, card_id$: String, payment_method: Number, domain_name$: String },
+    param_defaults: { payment_method: 32 },
     route_params: null
   },
   createCorporate: {
@@ -62,15 +102,15 @@ const apiEndpoints = {
     path: '/get_bill_breakdown',
     method: 'POST',
     send_json: true,
-    params: { access_token$: String, benefit_type: Number, amount: String, insurance_amount: String, domain_name$: String, total_no_of_tasks: Number, form_id: Number, user_id$: Number, promo_value: Number, credits: Number, total_service_charge: String },
-    param_defaults: { insurance_amount: "0", total_no_of_tasks: 1, form_id: 2, benefit_type: '' },
+    params: { access_token$: String, benefit_type: Number, amount: String, insurance_amount: Number, domain_name$: String, total_no_of_tasks: Number, form_id: Number, user_id$: Number, promo_value: Number, credits: Number, total_service_charge: Number, vehicle_id: Number, delivery_images: String, delivery_instruction: String, delivery_charge_by_buyer: Number, is_cod_job: Number, parcel_amount: Number, is_loader_required: Number, loaders_amount: Number, loaders_count: Number },
+    param_defaults: { insurance_amount: 0, total_no_of_tasks: 1, form_id: 2, benefit_type: 0, credits: 0, is_cod_job: 0, is_loader_required: 0, delivery_charge_by_buyer: 2 },
     route_params: null
   },
   cancelDeliveryTask: {
     path: '/cancel_vendor_task',
     method: 'POST',
     send_json: true,
-    params: { access_token$: String, vendor_id$: Number, job_id: String, job_status: Number, domain_name$: String },
+    params: { access_token$: String, vendor_id$: Number, job_id$: String, job_status: Number, domain_name$: String },
     route_params: null,
     param_defaults: { job_status: 9 }
   },
@@ -78,8 +118,8 @@ const apiEndpoints = {
     path: '/send_payment_for_task',
     method: 'POST',
     send_json: true,
-    params: { vendor_id$: Number, custom_field_template: String, pickup_custom_field_template: String, form_id: Number, access_token$: String, is_multiple_tasks: Number, domain_name$: String, timezone: String, has_pickup: Number, has_delivery: Number, auto_assignment: Number, user_id$: Number, layout_type: Number, deliveries: Array, payment_method: String, pickups: Array },
-    param_defaults: { custom_field_template: 'pricing-template', pickup_custom_field_template: 'pricing-template', form_id: 2, payment_method: '131072' /* paga wallet payment */, is_multiple_tasks: 1, has_pickup: 1, has_delivery: 1, timezone: '+60' /* West African Time: +1:00hr from UTC */, auto_assignment: 0, layout_type: 0 },
+    params: { vendor_id$: Number, custom_field_template: String, pickup_custom_field_template: String, form_id: Number, access_token$: String, is_multiple_tasks: Number, domain_name$: String, timezone: String, has_pickup: Number, has_delivery: Number, auto_assignment: Number, user_id$: Number, layout_type: Number, deliveries: Array, payment_method: Number, pickups: Array, is_cod_job: Number, parcel_amount: Number, is_loader_required: Number, vehicle_id: Number, loaders_amount: Number, loaders_count: Number, delivery_instruction: String, delivery_images: String, is_schedule_task: Number },
+    param_defaults: { custom_field_template: 'pricing-template', pickup_custom_field_template: 'pricing-template', form_id: 2, payment_method: 131072 /* paga wallet payment */, is_multiple_tasks: 1, has_pickup: 1, has_delivery: 1, timezone: '+60' /* West African Time: +1:00hr from UTC */, auto_assignment: 0, layout_type: 0, is_cod_job: 0, is_loader_required: 0, is_schedule_task: 0 },
     route_params: null
   },
   getAllDeliveryTaskDetails: {
@@ -102,8 +142,8 @@ const apiEndpoints = {
     path: '/create_task_via_vendor',
     method: 'POST',
     send_json: true,
-    params: { pickup_delivery_relationship: Number, pickups: Array, deliveries: Array, payment_method: String, total_service_charge: String, total_no_of_tasks: String, fleet_id: String, amount: String, insurance_amount: String, vendor_id$: Number, access_token$: String, is_multiple_tasks: Number, domain_name$: String, timezone: String, has_pickup: Number, has_delivery: Number, auto_assignment: Number, team_id: Number, layout_type: Number },
-    param_defaults: { insurance_amount: "0", pickup_delivery_relationship: 0, fleet_id: '', payment_method: '131072' /* paga wallet payment */, is_multiple_tasks: 1, has_pickup: 1, has_delivery: 1, timezone: '+60' /* West African Time: +1:00hr from UTC */, auto_assignment: 0, layout_type: 0, team_id: '' },
+    params: { pickup_delivery_relationship: Number, delivery_charge: Number, delivery_images: String, fleet_id: String, is_loader_required: Number, loaders_amount: Number, loaders_count: Number, cash_handling_charges: Number, cash_handling_percentage: Number, delivery_instruction: String, collect_on_delivery: Number, surge_cost: Number, is_cod_job: Number, surge_type: Number, pickups: Array, deliveries: Array, payment_method: Number, total_service_charge: Number, total_no_of_tasks: String, amount: String, insurance_amount: Number, vendor_id$: Number, access_token$: String, vehicle_id: Number, is_multiple_tasks: Number, domain_name$: String, timezone: String, has_pickup: Number, has_delivery: Number, auto_assignment: Number, team_id: Number, kwister_cash_handling_charge: String, net_processed_amount: Number, delivery_charge_by_buyer: Number, layout_type: Number },
+    param_defaults: { insurance_amount: 0, fleet_id: '', pickup_delivery_relationship: 0, payment_method: 131072 /* paga wallet payment */, is_multiple_tasks: 1, is_loader_required: 0, has_pickup: 1, has_delivery: 1, timezone: '+60' /* West African Time: +1:00hr from UTC */, auto_assignment: 0, layout_type: 0, delivery_charge_by_buyer: 2, is_cod_job: 0 },
     route_params: null
   }
 }
@@ -183,12 +223,12 @@ const setPathName = (config, values) => {
     match,
     string,
     offset) {
-    let _value = values[string]
+    let _value = config.params[string]
     return isTypeOf(
-      _value,
-      config.route_params[string]
+      config.route_params[string],
+      _value
     )
-      ? _value
+      ? config.route_params[string]
       : null
   })
 }
@@ -254,6 +294,8 @@ const setInputValues = (config, inputs) => {
           throw new Error(`param: "${param}" is not of type ${_type.name}; please provided as needed`)
         }
       }
+    } else {
+      ; // @FIXME: Throw error maybe
     }
   }
 
