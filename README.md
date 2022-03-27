@@ -40,7 +40,7 @@ TASK/JOB STATUSES:
 |UPCOMING   |  0   |  The task has been assigned to a agent                             |
 |STARTED    |  1   |  The task has been started and the agent is on the way             |
 |ENDED	    |  2   |  The task has been completed successfully                          |
-|FAILED	    |  3   |  The task has been completed unsuccessfully                        |
+|FAILED	    |  3   |  The task has not been completed successfully                      |
 |ARRIVED    |  4   |  The task is being performed;agent has reached the destination     |
 |UNASSIGNED |  6   |  The task has not been assigned to any agent                       |
 |ACCEPTED   |  7   |  The task has been accepted by the agent which is assigned to him  |
@@ -55,7 +55,7 @@ PAYMENT METHODS:
 
 | Title        | Code   | Description                                                |
 |--------------|--------|------------------------------------------------------------|
-|CARD          | 32     |  The task will be paid for using paystck card option       |
+|CARD          | 32     |  The task will be paid for using paystack card option       |
 |CASH          | 8      |  The task will be paid for using cash in currency of local |
 |STRIPE        | 2      |  The task will be paid for using stripe card option        |
 |WALLET (PAGA) | 131072 |  The task will be paid for using a paga wallet option      |
@@ -100,6 +100,7 @@ TIMEZONES:
 
 const Kwik = require('kwik-node')
 const express = require('express')
+
 
 const domainName = process.env.KWIK_DOMAIN_NAME; // 'app-test.kwik.delivery'
 const environment = process.env.NODE_ENV; // 'production'
