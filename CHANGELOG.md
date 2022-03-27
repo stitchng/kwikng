@@ -2,7 +2,7 @@
 # 0.0.8 (2022-03-27)
 
 ### Added Features
-- Add enpoint wrappers: `listAllCustomersPerCorporates()`, `listAllCorporatesInvoicesSub()`, `getDeliveryTaskStatus()`, `fetchAllAvailableDeliveryVehicles()`, `fetchAllLoadersOnAmount()`
+- Added the following enpoint wrappers: `listAllCustomersPerCorporates()`, `listAllCorporatesInvoicesSub()`, `getDeliveryTaskStatus()`, `fetchAllAvailableDeliveryVehicles()`, `fetchAllLoadersOnAmount()`
 
 <a name="0.0.7"></a>
 # 0.0.7 (2020-08-22)
