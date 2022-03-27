@@ -218,23 +218,8 @@ const isTypeOf = (value, type) => {
   return result
 }
 
-const setPathName = (config, values) => {
-  return config.path.replace(/\{:([\w]+)\}/g, function (
-    match,
-    string,
-    offset) {
-    let _value = config.params[string]
-    return isTypeOf(
-      config.route_params[string],
-      _value
-    )
-      ? config.route_params[string]
-      : null
-  })
-}
-
 const _jsonify = (data) => {
-  return data === undefined || data === null || data === ""
+  return isTypeOf(data, ["undefined", "null"]) || data === ""
     ? "null"
     : typeof data === "object"
     ? data instanceof Date
@@ -369,11 +354,7 @@ const makeMethod = function (config) {
         payload = setInputValues(config, requestParams)
       }
 
-      if (config.route_params !== null) {
-        pathname = setPathName(config, requestParams)
-      } else {
-        pathname = config.path
-      }
+      pathname = config.path
     } else {
       if (config.params !== null ||
              config.route_params !== null) {
@@ -415,6 +396,7 @@ class KwikAPI {
     this.httpClientBaseOptions = {
       baseUrl: (!isProd ? api_base.sandbox : api_base.live)
     }
+
     /* eslint-enable camelcase */
     this.httpBaseClient = got
   }
